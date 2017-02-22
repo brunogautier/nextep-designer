@@ -30,26 +30,26 @@ package com.nextep.designer.core.preferences;
  */
 public class DesignerCoreConstants {
 
-    public static final String FORCE_DELETE = "com.neXtep.designer.core.forceDelete"; //$NON-NLS-1$
+	public static final String FORCE_DELETE = "com.neXtep.designer.core.forceDelete"; //$NON-NLS-1$
 
-    public static final String LAST_USER = "nextep.designer.capture.username"; //$NON-NLS-1$
-    public static final String LAST_SID = "nextep.designer.capture.sid"; //$NON-NLS-1$
-    public static final String LAST_HOST = "nextep.designer.capture.hostname"; //$NON-NLS-1$
-    public static final String LAST_PORT = "nextep.designer.capture.port"; //$NON-NLS-1$
-    public static final String LAST_OPENED_VIEW = "com.neXtep.designer.lastView"; //$NON-NLS-1$
+	public static final String LAST_USER = "nextep.designer.capture.username"; //$NON-NLS-1$
+	public static final String LAST_SID = "nextep.designer.capture.sid"; //$NON-NLS-1$
+	public static final String LAST_HOST = "nextep.designer.capture.hostname"; //$NON-NLS-1$
+	public static final String LAST_PORT = "nextep.designer.capture.port"; //$NON-NLS-1$
+	public static final String LAST_OPENED_VIEW = "com.neXtep.designer.lastView"; //$NON-NLS-1$
 
-    public static final String REP_SSO_PROPERTY = "repository.authentication.sso"; //$NON-NLS-1$
-    public static final String REP_USER_PROPERTY = "repository.user"; //$NON-NLS-1$
-    public static final String REP_PASSWORD_PROPERTY = "repository.password"; //$NON-NLS-1$
-    public static final String REP_PASSWORD_SAVED_PROPERTY = "repository.password.saved"; //$NON-NLS-1$
-    public static final String REP_SERVER_PROPERTY = "repository.server.ip"; //$NON-NLS-1$
-    public static final String REP_PORT_PROPERTY = "repository.server.port"; //$NON-NLS-1$
-    public static final String REP_DATABASE_PROPERTY = "repository.instance.name"; //$NON-NLS-1$
-    public static final String REP_INSTANCE_PROPERTY = "repository.sid.name"; //$NON-NLS-1$
-    public static final String REP_SCHEMA_PROPERTY = "repository.schema"; //$NON-NLS-1$
-    public static final String REP_DB_VENDOR_PROPERTY = "repository.db.vendor"; //$NON-NLS-1$
-    public static final String REP_TNS_PROPERTY = "repository.tns.name"; //$NON-NLS-1$
+	public static final String REP_SSO_PROPERTY = "repository.authentication.sso"; //$NON-NLS-1$
+	public static final String REP_USER_PROPERTY = "repository.user"; //$NON-NLS-1$
+	public static final String REP_PASSWORD_PROPERTY = "repository.password"; //$NON-NLS-1$
+	public static final String REP_PASSWORD_SAVED_PROPERTY = "repository.password.saved"; //$NON-NLS-1$
+	public static final String REP_SERVER_PROPERTY = "repository.server.ip"; //$NON-NLS-1$
+	public static final String REP_PORT_PROPERTY = "repository.server.port"; //$NON-NLS-1$
+	public static final String REP_DATABASE_PROPERTY = "repository.instance.name"; //$NON-NLS-1$
+	public static final String REP_INSTANCE_PROPERTY = "repository.sid.name"; //$NON-NLS-1$
+	public static final String REP_SCHEMA_PROPERTY = "repository.schema"; //$NON-NLS-1$
+	public static final String REP_DB_VENDOR_PROPERTY = "repository.db.vendor"; //$NON-NLS-1$
+	public static final String REP_TNS_PROPERTY = "repository.tns.name"; //$NON-NLS-1$
 
-    public static final String ICON_TINY = "com.neXtep.designer.ui.icon.tiny"; //$NON-NLS-1$
+	public static final String ICON_TINY = "com.neXtep.designer.ui.icon.tiny"; //$NON-NLS-1$
 
 }

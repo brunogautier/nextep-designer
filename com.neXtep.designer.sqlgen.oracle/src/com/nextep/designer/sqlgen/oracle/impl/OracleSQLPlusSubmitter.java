@@ -44,126 +44,126 @@ import com.nextep.designer.core.model.IConnection;
  */
 public class OracleSQLPlusSubmitter extends AbstractExternalSQLSubmitter {
 
-    private static final String NLS_LANG_ENV_VAR_NAME = "NLS_LANG"; //$NON-NLS-1$
+	private static final String NLS_LANG_ENV_VAR_NAME = "NLS_LANG"; //$NON-NLS-1$
 
-    private static final Map<String, String> ORACLE_CHARSET_MAP = initOracleCharsetMap();
+	private static final Map<String, String> ORACLE_CHARSET_MAP = initOracleCharsetMap();
 
-    private Process process = null;
+	private Process process = null;
 
-    private static final Map<String, String> initOracleCharsetMap() {
-        Map<String, String> m = new HashMap<String, String>();
+	private static final Map<String, String> initOracleCharsetMap() {
+		Map<String, String> m = new HashMap<String, String>();
 
-        m.put("CP1252", "WE8MSWIN1252"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("ISO-8859-1", "WE8ISO8859P1"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("ISO-8859-15", "WE8ISO8859P15"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("US-ASCII", "US7ASCII"); //$NON-NLS-1$ //$NON-NLS-2$ 
-        m.put("UTF-16", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("UTF-16BE", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("UTF-16LE", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
-        m.put("UTF-8", "AL32UTF8"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("CP1252", "WE8MSWIN1252"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("ISO-8859-1", "WE8ISO8859P1"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("ISO-8859-15", "WE8ISO8859P15"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("US-ASCII", "US7ASCII"); //$NON-NLS-1$ //$NON-NLS-2$ 
+		m.put("UTF-16", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("UTF-16BE", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("UTF-16LE", "AL16UTF16"); //$NON-NLS-1$ //$NON-NLS-2$
+		m.put("UTF-8", "AL32UTF8"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        return Collections.unmodifiableMap(m);
-    }
+		return Collections.unmodifiableMap(m);
+	}
 
-    @Override
-    protected boolean doSubmit(IProgressMonitor monitor, ISQLScript script, IConnection conn)
-            throws IOException {
-        List<String> commandLine = new ArrayList<String>(3);
-        commandLine.add(getBinaryProgram());
-        commandLine.add(getSQLPlusConnectString(conn));
-        commandLine.add("@" //$NON-NLS-1$
-                + script.getAbsolutePathname().replaceAll(Matcher.quoteReplacement("\\"), "/")); //$NON-NLS-1$ //$NON-NLS-2$
-        ProcessBuilder pb = new ProcessBuilder(commandLine.toArray(new String[0]));
-        pb.redirectErrorStream(true);
+	@Override
+	protected boolean doSubmit(IProgressMonitor monitor, ISQLScript script, IConnection conn)
+			throws IOException {
+		List<String> commandLine = new ArrayList<String>(3);
+		commandLine.add(getBinaryProgram());
+		commandLine.add(getSQLPlusConnectString(conn));
+		commandLine.add("@" //$NON-NLS-1$
+				+ script.getAbsolutePathname().replaceAll(Matcher.quoteReplacement("\\"), "/")); //$NON-NLS-1$ //$NON-NLS-2$
+		ProcessBuilder pb = new ProcessBuilder(commandLine.toArray(new String[0]));
+		pb.redirectErrorStream(true);
 
-        /*
-         * Retrieves the encoding specified in the neXtep preferences and tries to find a
-         * corresponding Oracle charset. If no match has been found, let the Oracle client use its
-         * default character set.
-         */
-        String encoding = getEncodingPreference();
-        if (ORACLE_CHARSET_MAP.containsKey(encoding)) {
-            String nlsLangEnvVar = "." + ORACLE_CHARSET_MAP.get(encoding); //$NON-NLS-1$
+		/*
+		 * Retrieves the encoding specified in the neXtep preferences and tries to find a
+		 * corresponding Oracle charset. If no match has been found, let the Oracle client use its
+		 * default character set.
+		 */
+		String encoding = getEncodingPreference();
+		if (ORACLE_CHARSET_MAP.containsKey(encoding)) {
+			String nlsLangEnvVar = "." + ORACLE_CHARSET_MAP.get(encoding); //$NON-NLS-1$
 
-            /*
-             * Sets the NLS_LANG environment variable to specify the encoding used to encode the SQL
-             * script to submit. As NLS_LANG is specified without <Language>_<Territory> part, the
-             * <Language>_<Territory> part will default to AMERICAN_AMERICA. This is safer since
-             * console messages are not encoded with the same encoding as the file, but with the
-             * system default's encoding (Cp850 for Window's DOS environment for example).
-             */
-            Map<String, String> env = pb.environment();
-            env.put(NLS_LANG_ENV_VAR_NAME, nlsLangEnvVar);
-        }
+			/*
+			 * Sets the NLS_LANG environment variable to specify the encoding used to encode the SQL
+			 * script to submit. As NLS_LANG is specified without <Language>_<Territory> part, the
+			 * <Language>_<Territory> part will default to AMERICAN_AMERICA. This is safer since
+			 * console messages are not encoded with the same encoding as the file, but with the
+			 * system default's encoding (Cp850 for Window's DOS environment for example).
+			 */
+			Map<String, String> env = pb.environment();
+			env.put(NLS_LANG_ENV_VAR_NAME, nlsLangEnvVar);
+		}
 
-        process = pb.start();
-        BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream(),
-                encoding));
-        // Logging from output loop
-        String line;
-        boolean isOk = true;
-        int lineCount = 0;
-        int errorCount = 0;
-        while ((line = input.readLine()) != null) {
-            lineCount++;
-            getConsole().log("Oracle> " + line); //$NON-NLS-1$
-            if (isOk && (line.indexOf("ORA-") > 0 || line.indexOf("PLS-") > 0 || line //$NON-NLS-1$ //$NON-NLS-2$
-                    .indexOf("ERROR") > 0)) { //$NON-NLS-1$
-                handleError(script, line, lineCount);
-                isOk = false;
-                errorCount++;
-            }
-        }
-        getConsole().log("Generator exit value was: " + process.exitValue()); //$NON-NLS-1$
-        input.close();
-        return isOk;
-    }
+		process = pb.start();
+		BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream(),
+				encoding));
+		// Logging from output loop
+		String line;
+		boolean isOk = true;
+		int lineCount = 0;
+		int errorCount = 0;
+		while ((line = input.readLine()) != null) {
+			lineCount++;
+			getConsole().log("Oracle> " + line); //$NON-NLS-1$
+			if (isOk && (line.indexOf("ORA-") > 0 || line.indexOf("PLS-") > 0 || line //$NON-NLS-1$ //$NON-NLS-2$
+					.indexOf("ERROR") > 0)) { //$NON-NLS-1$
+				handleError(script, line, lineCount);
+				isOk = false;
+				errorCount++;
+			}
+		}
+		getConsole().log("Generator exit value was: " + process.exitValue()); //$NON-NLS-1$
+		input.close();
+		return isOk;
+	}
 
-    private String getSQLPlusConnectString(IConnection conn) {
-        StringBuilder sb = new StringBuilder(conn.getLogin());
-        final String alias = conn.getTnsAlias();
+	private String getSQLPlusConnectString(IConnection conn) {
+		StringBuilder sb = new StringBuilder(conn.getLogin());
+		final String alias = conn.getTnsAlias();
 
-        sb.append("/") //$NON-NLS-1$
-                .append("\"\\\"").append(conn.getPassword()).append("\\\"\"") //$NON-NLS-1$ //$NON-NLS-2$
-                .append("@") //$NON-NLS-1$
-                .append("(DESCRIPTION=") //$NON-NLS-1$
-                .append("(ADDRESS_LIST=") //$NON-NLS-1$
-                .append("(ADDRESS=") //$NON-NLS-1$
-                .append("(PROTOCOL=TCP)") //$NON-NLS-1$
-                .append("(HOST=").append(conn.getServerIP()).append(")") //$NON-NLS-1$ //$NON-NLS-2$
-                .append("(PORT=").append(conn.getServerPort()).append(")") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-                .append(")") //$NON-NLS-1$
-                .append(")") //$NON-NLS-1$
-                .append("(CONNECT_DATA="); //$NON-NLS-1$
+		sb.append("/") //$NON-NLS-1$
+				.append("\"\\\"").append(conn.getPassword()).append("\\\"\"") //$NON-NLS-1$ //$NON-NLS-2$
+				.append("@") //$NON-NLS-1$
+				.append("(DESCRIPTION=") //$NON-NLS-1$
+				.append("(ADDRESS_LIST=") //$NON-NLS-1$
+				.append("(ADDRESS=") //$NON-NLS-1$
+				.append("(PROTOCOL=TCP)") //$NON-NLS-1$
+				.append("(HOST=").append(conn.getServerIP()).append(")") //$NON-NLS-1$ //$NON-NLS-2$
+				.append("(PORT=").append(conn.getServerPort()).append(")") //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				.append(")") //$NON-NLS-1$
+				.append(")") //$NON-NLS-1$
+				.append("(CONNECT_DATA="); //$NON-NLS-1$
 
-        if (alias != null && !"".equals(alias.trim())) { //$NON-NLS-1$
-            sb.append("(SERVICE_NAME=").append(alias).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
-        } else {
-            sb.append("(SID=").append(conn.getDatabase()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
-        }
+		if (alias != null && !"".equals(alias.trim())) { //$NON-NLS-1$
+			sb.append("(SERVICE_NAME=").append(alias).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		} else {
+			sb.append("(SID=").append(conn.getDatabase()).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 
-        sb.append(")").append(")"); //$NON-NLS-1$ //$NON-NLS-2$
+		sb.append(")").append(")"); //$NON-NLS-1$ //$NON-NLS-2$
 
-        //		getConsole().log("SQL*Plus Connect_string: " + sb.toString()); //$NON-NLS-1$
+		//		getConsole().log("SQL*Plus Connect_string: " + sb.toString()); //$NON-NLS-1$
 
-        return sb.toString();
-    }
+		return sb.toString();
+	}
 
-    private void handleError(ISQLScript script, String errorLine, int lineCount) {
-        if (SubmitErrorsMarkerProvider.getInstance() != null) {
-            SubmitErrorsMarkerProvider.getInstance().addErrorMarker(script, errorLine, lineCount);
-        }
-    }
+	private void handleError(ISQLScript script, String errorLine, int lineCount) {
+		if (SubmitErrorsMarkerProvider.getInstance() != null) {
+			SubmitErrorsMarkerProvider.getInstance().addErrorMarker(script, errorLine, lineCount);
+		}
+	}
 
-    @Override
-    protected void abort() {
-        if (process != null) {
-            process.destroy();
-        }
-    }
+	@Override
+	protected void abort() {
+		if (process != null) {
+			process.destroy();
+		}
+	}
 
-    @Override
-    public DBVendor getVendor() {
-        return DBVendor.ORACLE;
-    }
+	@Override
+	public DBVendor getVendor() {
+		return DBVendor.ORACLE;
+	}
 }

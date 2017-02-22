@@ -43,56 +43,56 @@ import com.nextep.designer.sqlgen.helpers.ConnectorHelper;
  * @author Bruno Gautier
  */
 public abstract class AbstractDatabaseConnector extends Observable implements
-        IDatabaseConnector<Connection> {
+		IDatabaseConnector<Connection> {
 
-    private static final Log LOGGER = LogFactory.getLog(AbstractDatabaseConnector.class);
-    private static final int LOGIN_TIMEOUT = 10;
+	private static final Log LOGGER = LogFactory.getLog(AbstractDatabaseConnector.class);
+	private static final int LOGIN_TIMEOUT = 10;
 
-    private Driver driver;
+	private Driver driver;
 
-    /**
-     * This constructor manually load any JDBC drivers prior to version 4.0. As for JDBC 4.0
-     * drivers, if some are found in the class path, they are automatically loaded by the
-     * <code>DriverManager</code> class when it first attempts to establish a connection.
-     */
-    public AbstractDatabaseConnector() {
-        DriverManager.setLoginTimeout(LOGIN_TIMEOUT);
-        String driverClassName = getJDBCDriverClassName();
-        if (driverClassName != null) {
-            try {
-                driver = (Driver) Class.forName(driverClassName).newInstance();
-            } catch (Exception e) {
-                throw new ErrorException(e);
-            }
-        } else {
-            LOGGER.info("This IDatabaseConnector implementation does not provide a JDBC driver, "
-                    + "you may use a vendor specific IDatabaseConnector implementation in order to "
-                    + "connect to the database");
-        }
-    }
+	/**
+	 * This constructor manually load any JDBC drivers prior to version 4.0. As for JDBC 4.0
+	 * drivers, if some are found in the class path, they are automatically loaded by the
+	 * <code>DriverManager</code> class when it first attempts to establish a connection.
+	 */
+	public AbstractDatabaseConnector() {
+		DriverManager.setLoginTimeout(LOGIN_TIMEOUT);
+		String driverClassName = getJDBCDriverClassName();
+		if (driverClassName != null) {
+			try {
+				driver = (Driver) Class.forName(driverClassName).newInstance();
+			} catch (Exception e) {
+				throw new ErrorException(e);
+			}
+		} else {
+			LOGGER.info("This IDatabaseConnector implementation does not provide a JDBC driver, "
+					+ "you may use a vendor specific IDatabaseConnector implementation in order to "
+					+ "connect to the database");
+		}
+	}
 
-    @Override
-    public final Connection connect(IConnection conn) throws SQLException {
-        return CorePlugin.getConnectionService().connect(conn);
-    }
+	@Override
+	public final Connection connect(IConnection conn) throws SQLException {
+		return CorePlugin.getConnectionService().connect(conn);
+	}
 
-    @Override
-    public Properties getConnectionInfo(IConnection conn) {
-        Properties info = new Properties();
-        if (!conn.isSsoAuthentication()) {
-            info.put("user", conn.getLogin()); //$NON-NLS-1$
-            info.put("password", ConnectorHelper.getEscapedPassword(conn)); //$NON-NLS-1$
-        }
-        return info;
-    }
+	@Override
+	public Properties getConnectionInfo(IConnection conn) {
+		Properties info = new Properties();
+		if (!conn.isSsoAuthentication()) {
+			info.put("user", conn.getLogin()); //$NON-NLS-1$
+			info.put("password", ConnectorHelper.getEscapedPassword(conn)); //$NON-NLS-1$
+		}
+		return info;
+	}
 
-    @Override
-    public String getCatalog(IConnection conn) {
-        return null;
-    }
+	@Override
+	public String getCatalog(IConnection conn) {
+		return null;
+	}
 
-    protected Driver getDriver() {
-        return driver;
-    }
+	protected Driver getDriver() {
+		return driver;
+	}
 
 }

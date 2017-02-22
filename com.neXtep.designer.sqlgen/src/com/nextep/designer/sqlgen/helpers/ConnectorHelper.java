@@ -13,23 +13,23 @@ import com.nextep.designer.core.model.IConnection;
  */
 public final class ConnectorHelper {
 
-    /**
-     * Returns the password of the specified connection with reserved characters escaped.
-     * 
-     * @param conn a {@link IConnection}
-     * @return a <code>String</code> representing the escaped password of the specified connection
-     */
-    public static String getEscapedPassword(IConnection conn) {
-        final DBVendor vendor = conn.getDBVendor();
-        String escapedPassword = conn.getPassword();
+	/**
+	 * Returns the password of the specified connection with reserved characters escaped.
+	 * 
+	 * @param conn a {@link IConnection}
+	 * @return a <code>String</code> representing the escaped password of the specified connection
+	 */
+	public static String getEscapedPassword(IConnection conn) {
+		final DBVendor vendor = conn.getDBVendor();
+		String escapedPassword = conn.getPassword();
 
-        switch (vendor) {
-        case ORACLE:
-            escapedPassword = "\"" + escapedPassword + "\""; //$NON-NLS-1$ //$NON-NLS-2$
-            break;
-        }
+		switch (vendor) {
+		case ORACLE:
+			escapedPassword = "\"" + escapedPassword + "\""; //$NON-NLS-1$ //$NON-NLS-2$
+			break;
+		}
 
-        return escapedPassword;
-    }
+		return escapedPassword;
+	}
 
 }
