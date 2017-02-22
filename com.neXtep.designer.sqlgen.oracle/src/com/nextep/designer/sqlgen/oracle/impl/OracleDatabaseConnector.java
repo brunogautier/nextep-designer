@@ -41,84 +41,90 @@ import com.nextep.designer.sqlgen.oracle.OracleMessages;
  */
 public class OracleDatabaseConnector extends AbstractDatabaseConnector {
 
-	private static final Log LOGGER = LogFactory.getLog(OracleDatabaseConnector.class);
-	private static final String ORACLE_JDBC_DRIVER_CLASSNAME = "oracle.jdbc.driver.OracleDriver"; //$NON-NLS-1$
+    private static final Log LOGGER = LogFactory.getLog(OracleDatabaseConnector.class);
+    private static final String ORACLE_JDBC_DRIVER_CLASSNAME = "oracle.jdbc.driver.OracleDriver"; //$NON-NLS-1$
 
-	@Override
-	public Connection getConnection(IConnection conn) throws SQLException {
-		LOGGER.info(MessageFormat.format(OracleMessages.getString("connecting"), conn)); //$NON-NLS-1$
-		Connection connection = null;
-		try {
-			connection = getDriver().connect(getConnectionURL(conn), getConnectionInfo(conn));
-		} catch (SQLException sqle) {
-			LOGGER.error("Unable to connect to Oracle database: " + sqle.getMessage(), sqle);
-			throw sqle;
-		}
-		LOGGER.info(OracleMessages.getString("connectionEstablished")); //$NON-NLS-1$
-		return connection;
-	}
+    @Override
+    public Connection getConnection(IConnection conn) throws SQLException {
+        LOGGER.info(MessageFormat.format(OracleMessages.getString("connecting"), conn)); //$NON-NLS-1$
+        Connection connection = null;
+        try {
+            connection = getDriver().connect(getConnectionURL(conn), getConnectionInfo(conn));
+        } catch (SQLException sqle) {
+            LOGGER.error("Unable to connect to Oracle database: " + sqle.getMessage(), sqle);
+            throw sqle;
+        }
+        LOGGER.info(OracleMessages.getString("connectionEstablished")); //$NON-NLS-1$
+        return connection;
+    }
 
-	@Override
-	public void doPostConnectionSettings(IConnection conn, Connection sqlConn) throws SQLException {
-		// Nothing to do
-	}
+    @Override
+    public void doPostConnectionSettings(IConnection conn, Connection sqlConn) throws SQLException {
+        // Nothing to do
+    }
 
-	@Override
-	public Properties getConnectionInfo(IConnection conn) {
-		final Properties props = super.getConnectionInfo(conn);
-		// props.put("internal_logon", "sysdba");
-		return props;
-	}
+    @Override
+    public Properties getConnectionInfo(IConnection conn) {
+        final Properties props = super.getConnectionInfo(conn);
+        // props.put("internal_logon", "sysdba");
+        return props;
+    }
 
-	@Override
-	public String getJDBCDriverClassName() {
-		return ORACLE_JDBC_DRIVER_CLASSNAME;
-	}
+    @Override
+    public String getJDBCDriverClassName() {
+        return ORACLE_JDBC_DRIVER_CLASSNAME;
+    }
 
-	/**
-	 * Retrieves the prefix of a string by extracting any prefixed string followed by "_"
-	 * 
-	 * @param name the prefix will be extracted from this string
-	 * @return the string prefix or "" if none
-	 */
-	public String getPrefix(String name) {
-		if (name.indexOf("_") > 0) { //$NON-NLS-1$
-			String prefix = name.substring(0, name.indexOf("_")); //$NON-NLS-1$
-			if (prefix != null && !prefix.equals(name) && prefix.length() > 0) {
-				return prefix;
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
+    /**
+     * Retrieves the prefix of a string by extracting any prefixed string followed by "_"
+     * 
+     * @param name the prefix will be extracted from this string
+     * @return the string prefix or "" if none
+     */
+    public String getPrefix(String name) {
+        if (name.indexOf("_") > 0) { //$NON-NLS-1$
+            String prefix = name.substring(0, name.indexOf("_")); //$NON-NLS-1$
+            if (prefix != null && !prefix.equals(name) && prefix.length() > 0) {
+                return prefix;
+            }
+        }
+        return ""; //$NON-NLS-1$
+    }
 
-	@Override
-	public String getConnectionURL(IConnection conn) {
-		final String host = conn.getServerIP();
-		final String port = conn.getServerPort();
-		final String database = conn.getDatabase();
-		return "jdbc:oracle:thin:@" + host + ":" + port + ":" + database; //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$;
-	}
+    @Override
+    public String getConnectionURL(IConnection conn) {
+        final String alias = conn.getTnsAlias();
 
-	/**
-	 * Returns the formatted schema name of the specified connection if available, the formatted
-	 * user name otherwise.
-	 * 
-	 * @param conn a {@link IConnection}
-	 * @return a <code>String</code> representing the schema name of the specified connection
-	 */
-	@Override
-	public String getSchema(IConnection conn) {
-		String schema = conn.getSchema();
-		if (schema == null || "".equals(schema.trim())) { //$NON-NLS-1$
-			String user = conn.getLogin();
-			if (user != null && !"".equals(user.trim())) { //$NON-NLS-1$
-				// User name is trimmed by the vendor formatter
-				return conn.getDBVendor().getNameFormatter().format(user);
-			}
-			return null;
-		}
-		// Schema name is trimmed by the vendor formatter
-		return conn.getDBVendor().getNameFormatter().format(schema);
-	}
+        StringBuilder sb = new StringBuilder("jdbc:oracle:thin:@"); //$NON-NLS-1$
+        sb.append("//") //$NON-NLS-1$
+                .append(conn.getServerIP()).append(":") //$NON-NLS-1$
+                .append(conn.getServerPort()).append("/"); //$NON-NLS-1$
+
+        sb.append((alias != null && !"".equals(alias.trim()) ? alias : conn.getDatabase())); //$NON-NLS-1$
+
+        return sb.toString();
+    }
+
+    /**
+     * Returns the formatted schema name of the specified connection if available, the formatted
+     * user name otherwise.
+     * 
+     * @param conn a {@link IConnection}
+     * @return a <code>String</code> representing the schema name of the specified connection
+     */
+    @Override
+    public String getSchema(IConnection conn) {
+        String schema = conn.getSchema();
+        if (schema == null || "".equals(schema.trim())) { //$NON-NLS-1$
+            String user = conn.getLogin();
+            if (user != null && !"".equals(user.trim())) { //$NON-NLS-1$
+                // User name is trimmed by the vendor formatter
+                return conn.getDBVendor().getNameFormatter().format(user);
+            }
+            return null;
+        }
+        // Schema name is trimmed by the vendor formatter
+        return conn.getDBVendor().getNameFormatter().format(schema);
+    }
 
 }

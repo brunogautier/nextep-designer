@@ -25,59 +25,66 @@ package com.nextep.installer.model.impl;
 import com.nextep.installer.model.DBVendor;
 import com.nextep.installer.model.IDatabaseTarget;
 
+/**
+ * @author Christophe Fondacci
+ * @author Bruno Gautier
+ */
 public class DatabaseTarget implements IDatabaseTarget {
 
-	private String user, password, db, host, port;
-	private DBVendor vendor;
-	private String tnsAlias;
+    private String user, password, database, host, port;
+    private DBVendor vendor;
+    private String tnsAlias;
 
-	public DatabaseTarget(String user, String password, String db, String host, String port,
-			DBVendor vendor) {
-		this.user = user;
-		this.password = password;
-		this.db = db;
-		this.host = host;
-		this.port = port;
-		this.vendor = vendor;
-		// By default, TNS is the database id unless explicitly set
-		this.tnsAlias = db;
-	}
+    public DatabaseTarget(String user, String password, String database, String host, String port,
+            DBVendor vendor, String serviceName) {
+        this.user = user;
+        this.password = password;
+        this.database = database;
+        this.host = host;
+        this.port = port;
+        this.vendor = vendor;
+        // By default, TNS is the database id unless explicitly set
+        this.tnsAlias = (serviceName != null && !"".equals(serviceName.trim()) ? serviceName //$NON-NLS-1$
+                : database);
+    }
 
-	public String getDatabase() {
-		return db;
-	}
+    public String getDatabase() {
+        return database;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public String getHost() {
+        return host;
+    }
 
-	public String getPassword() {
-		return password;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	public String getPort() {
-		return port;
-	}
+    public String getPort() {
+        return port;
+    }
 
-	public String getUser() {
-		return user;
-	}
+    public String getUser() {
+        return user;
+    }
 
-	public DBVendor getVendor() {
-		return vendor;
-	}
+    public DBVendor getVendor() {
+        return vendor;
+    }
 
-	@Override
-	public String toString() {
-		return vendor != null ? vendor.buildConnectionURL(host, port, db) : (vendor + ":" + user
-				+ "@" + db + ":" + port + " (" + host + ")");
-	}
+    @Override
+    public String toString() {
+        return (vendor != null ? vendor.buildConnectionURL(host, port, database, tnsAlias) : (user
+                + "@" + (tnsAlias != null && !"".equals(tnsAlias.trim()) ? tnsAlias : database) //$NON-NLS-1$ //$NON-NLS-2$
+                + ":" + port + " (" + host + ")")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+    }
 
-	public String getTnsAlias() {
-		return tnsAlias;
-	}
+    public String getTnsAlias() {
+        return tnsAlias;
+    }
 
-	public void setTnsAlias(String tnsAlias) {
-		this.tnsAlias = tnsAlias;
-	}
+    public void setTnsAlias(String tnsAlias) {
+        this.tnsAlias = tnsAlias;
+    }
+
 }
